@@ -1,0 +1,37 @@
+composer create-project laravel/laravel backend
+cd backend
+php artisan install:api
+
+APP_URL=http://localhost:8000
+FRONTEND_URL=http://localhost:5173
+
+# Autorise Sanctum à gérer les sessions pour React
+SANCTUM_STATEFUL_DOMAINS=localhost:5173
+
+Bail/
+├── backend/            <-- Projet Laravel (Logique & API)
+│   ├── app/
+│   ├── routes/
+│   ├── .env
+│   └── artisan         <-- Le fameux fichier est ici maintenant
+└── frontend/           <-- Projet React (Interface)
+    ├── src/
+    ├── package.json
+    └── node_modules/
+
+php artisan serve
+
+npm create vite@latest frontend -- --template react
+cd frontend
+npm install
+npm install axios
+// frontend/src/api/axios.js
+import axios from 'axios';
+
+const api = axios.create({
+    baseURL: 'http://127.0.0.1:8000/api', // L'URL de ton serveur Laravel
+    withCredentials: true, // Requis pour la sécurité et Sanctum
+});
+
+export default api;
+npm run dev
