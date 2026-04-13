@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Sun, Moon } from 'lucide-react';
+import { Menu, X, Sun, Moon, UserCircle } from 'lucide-react';
 
-// Ajout de onLoginClick et isLoggedIn dans les props
-export default function Navbar({ darkMode, toggleDarkMode, onLoginClick, isLoggedIn }) {
+// Assure-toi que les props incluent onTenantLoginClick
+export default function Navbar({ darkMode, toggleDarkMode, onLoginClick, onTenantLoginClick, isLoggedIn }) {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -30,18 +30,31 @@ export default function Navbar({ darkMode, toggleDarkMode, onLoginClick, isLogge
               <span className="text-[10px] md:text-sm font-bold tracking-tight uppercase text-black">Lubumbashi</span>
             </div>
 
-            {/* Desktop Links - Hidden if logged in */}
+            {/* Desktop Links - Masqués si connecté en tant que Bailleur */}
             {!isLoggedIn && (
               <div className="hidden md:flex bg-white/80 text-black backdrop-blur-lg px-8 py-3 rounded-full shadow-lg gap-8 font-bold text-sm">
-                <a href="#home" className="hover:opacity-50 transition">Accueil</a>
-                <a href="#about" className="hover:opacity-50 transition">À propos</a>
-                <a href="#services" className="hover:opacity-50 transition">Services</a>
-                <a href="#pricing" className="hover:opacity-50 transition">Tarifs</a>
+                <a href="#home" className="hover:opacity-50 transition text-black">Accueil</a>
+                <a href="#about" className="hover:opacity-50 transition text-black">À propos</a>
+                <a href="#services" className="hover:opacity-50 transition text-black">Services</a>
+                <a href="#pricing" className="hover:opacity-50 transition text-black">Tarifs</a>
               </div>
             )}
 
             {/* Actions */}
             <div className="flex items-center gap-2 md:gap-4">
+              
+              {/* --- BOUTON ESPACE LOCATAIRE (Visible uniquement si déconnecté) --- */}
+              {!isLoggedIn && (
+                <button 
+                  onClick={onTenantLoginClick}
+                  className="hidden lg:flex items-center gap-2 px-5 py-3 rounded-full bg-white/20 backdrop-blur-md border border-black/10 dark:border-white/20 text-black dark:text-white font-bold text-xs hover:bg-white/40 transition-all shadow-sm"
+                >
+                  <UserCircle className="w-4 h-4" />
+                  Espace Locataire
+                </button>
+              )}
+
+              {/* Toggle Dark Mode */}
               <button 
                 onClick={toggleDarkMode}
                 className="p-3 rounded-full bg-white/90 shadow-md text-black dark:text-yellow-400 transition-all hover:scale-110"
@@ -49,7 +62,7 @@ export default function Navbar({ darkMode, toggleDarkMode, onLoginClick, isLogge
                 {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
               </button>
 
-              {/* Bouton S'inscrire / Déconnexion */}
+              {/* Bouton Connexion/Inscription Bailleur */}
               <button 
                 onClick={onLoginClick}
                 className={`hidden md:block px-6 py-3 rounded-full shadow-xl font-bold text-sm hover:scale-105 transition-transform cursor-pointer ${
@@ -61,6 +74,7 @@ export default function Navbar({ darkMode, toggleDarkMode, onLoginClick, isLogge
                 {isLoggedIn ? 'Déconnexion' : "S'inscrire"}
               </button>
               
+              {/* Menu Mobile Button */}
               <button 
                 onClick={() => setIsOpen(!isOpen)}
                 className="md:hidden p-3 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md rounded-full border border-white/20 dark:border-slate-700 shadow-md text-black dark:text-white"
@@ -82,6 +96,17 @@ export default function Navbar({ darkMode, toggleDarkMode, onLoginClick, isLogge
               
               <div className="w-full h-[1px] bg-black/5 dark:bg-white/10" />
               
+              {/* Accès Locataire Mobile */}
+              {!isLoggedIn && (
+                <button 
+                  onClick={() => { onTenantLoginClick(); setIsOpen(false); }}
+                  className="w-full border-2 border-black dark:border-white text-black dark:text-white py-4 rounded-2xl font-black text-sm uppercase"
+                >
+                  Accès Locataire
+                </button>
+              )}
+
+              {/* Bouton Action Principal Mobile */}
               <button 
                 onClick={() => { onLoginClick(); setIsOpen(false); }}
                 className="w-full bg-black dark:bg-white text-white dark:text-black py-4 rounded-2xl font-black text-sm uppercase tracking-widest"

@@ -3,46 +3,40 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BailController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
-| Public Routes
+| API Routes - EasyBail
 |--------------------------------------------------------------------------
 */
-// Routes pour l'accès initial (Login/Register)
+
+// --- ROUTES PUBLIQUES ---
+// Ces routes doivent être accessibles par LoginModal.jsx ou tes pages d'accueil
 Route::post('/login', [AuthController::class, 'login']);
-Route::post('/register', [AuthController::class, 'register']);
+Route::post('/register', [AuthController::class, 'register']); 
 
-/*
-|--------------------------------------------------------------------------
-| Protected Routes (Sanctum)
-|--------------------------------------------------------------------------
-| Le middleware 'auth:sanctum' vérifie la présence du Bearer Token 
-| envoyé par ton intercepteur Axios.
-*/
+
+// --- ROUTES PROTÉGÉES (Sanctum) ---
 Route::middleware('auth:sanctum')->group(function () {
-    
-    // 1. Authentification
-    Route::post('/logout', [AuthController::class, 'logout']);
 
-    // 2. Données du Dashboard (Stats & Transactions)
-    // URL cible: http://127.0.0.1:8000/api/dashboard/stats
-    Route::prefix('dashboard')->group(function () {
-        Route::get('/stats', [DashboardController::class, 'getStats']);
-        Route::get('/transactions', [DashboardController::class, 'getTransactions']);
-    });
-    
-    // 3. Gestion du Profil (Interface style WhatsApp)
-    // URL cible: http://127.0.0.1:8000/api/user-profile
-    Route::get('/user-profile', [DashboardController::class, 'getProfile']);
-    Route::put('/user-profile', [DashboardController::class, 'updateProfile']);
-    
-    // 4. Gestion des Bails
-    Route::post('/bails', [DashboardController::class, 'storeBail']);
-    
-    // 5. Route utilitaire (Optionnelle pour le debug frontend)
+    // Utilisé par Dashboard.jsx (handleCreateLease)
+    Route::post('/bails', [BailController::class, 'store']);
+    Route::get('/bails', [BailController::class, 'index']);
+
+    // Utilisé par Dashboard.jsx pour les graphiques et stats
+    Route::get('/dashboard/stats', [DashboardController::class, 'stats']);
+    Route::get('/dashboard/transactions', [DashboardController::class, 'transactions']);
+
+    // Utilisé par l'onglet Paramètres dans Dashboard.jsx
+    Route::get('/user-profile', [ProfileController::class, 'show']);
+    Route::put('/user-profile', [ProfileController::class, 'update']);
+
+    // Infos utilisateur courant et Déconnexion
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+    Route::post('/logout', [AuthController::class, 'logout']);
 });

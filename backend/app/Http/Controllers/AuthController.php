@@ -6,19 +6,19 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
     /**
      * Inscription (Register)
+     * Permet de créer un nouveau compte utilisateur (Bailleur)
      */
     public function register(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:4|confirmed', // 'confirmed' attend un champ password_confirmation
+            'password' => 'required|string|min:4|confirmed', 
         ]);
 
         $user = User::create([
@@ -38,6 +38,7 @@ class AuthController extends Controller
 
     /**
      * Connexion (Login)
+     * Vérifie les identifiants et génère un token Sanctum
      */
     public function login(Request $request)
     {
@@ -48,16 +49,17 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        // Vérification du mot de passe
+        // Vérification de l'existence de l'utilisateur et du mot de passe
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json([
                 'message' => 'Identifiants incorrects.'
             ], 401);
         }
 
-        // On supprime les anciens tokens pour éviter d'en avoir trop (optionnel)
+        // Sécurité : On supprime les anciens tokens pour éviter les sessions multiples inutiles
         $user->tokens()->delete();
 
+        // Génération du nouveau token
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -69,10 +71,11 @@ class AuthController extends Controller
 
     /**
      * Déconnexion (Logout)
+     * Supprime le token actuel pour invalider la session
      */
     public function logout(Request $request)
     {
-        // On supprime le token actuel de l'utilisateur
+        // On supprime le token que l'utilisateur utilise actuellement
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([

@@ -13,6 +13,12 @@ return new class extends Migration
     {
         Schema::create('tenants', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Le bailleur
+            $table->string('nom');
+            $table->string('prenom');
+            $table->string('email')->unique();
+            $table->string('telephone');
+            $table->string('code_acces'); // Un code unique pour que le locataire se connecte
             $table->timestamps();
         });
     }
